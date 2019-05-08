@@ -1,38 +1,46 @@
 import React from 'react';
 import Square from './Square';
+import { connect } from 'react-redux';
 
 class Board extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      squares: Array(9).fill(null),
       xIsNext: true,
     }
   }
 
   handleClick(i) {
-    const squares = this.state.squares.slice();
-    if (calculateWinner(squares) || squares[i]) {
-      return;
+    const { dispatch } = this.props;
+    const action = {
+      type: 'USER_CLICK',
+      i,
+      playerTurn: this.state.xIsNext
     }
-    squares[i] = this.state.xIsNext ? 'X' : 'O';
-    this.setState({
-      squares: squares,
-      xIsNext: !this.state.xIsNext,
-    });
+    dispatch(action);
+    this.renderSquare(i);
+    // if (calculateWinner(squares) || squares[i]) {
+    //   return;
+    // }
+    // squares[i] = this.state.xIsNext ? 'X' : 'O';
+    // this.setState({
+    //   squares: squares,
+    //   xIsNext: !this.state.xIsNext,
+    // });
   }
 
   renderSquare(i) {
+    console.log(this.props.squares[i]);
     return (
     <Square
-      value={this.state.squares[i]}
+      value={this.props.squares[i]}
       onClick={() => this.handleClick(i)}
     />
     );
   }
 
   render() {
-    const winner = calculateWinner(this.state.squares);
+    const winner = calculateWinner(this.props.squares);
     let status;
     if (winner) {
       status = 'Winner: ' + winner;
@@ -83,4 +91,10 @@ function calculateWinner(squares) {
   return null;
 }
 
-export default Board;
+const mapStateToProps = state => {
+  return {
+    squares: state.squares.board
+  }
+}
+
+export default connect(mapStateToProps)(Board);
